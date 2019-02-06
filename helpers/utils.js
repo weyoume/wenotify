@@ -1,6 +1,17 @@
-const Client = require('lightrpc');
+const createClient = require('weliterpcjs').createClient;
+
+const client = createClient(process.env.API_URL || 'https://node.weyoume.io', {timeout: 15000});
+client.send = (message, params) =>
+  new Promise((resolve, reject) => {
+    client.send(message, params, (err, result) => {
+      if (err !== null) return reject(err);
+      return resolve(result);
+    });
+  });
+
+// const Client = require('weliterpcjs');
 const bluebird = require('bluebird');
-const client = new Client('https://api.steemit.com');
+// const client = new Client('https://node.weyoume.io');
 bluebird.promisifyAll(client);
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -36,4 +47,5 @@ module.exports = {
   getGlobalProps,
   mutliOpsInBlock,
   getBlockOps,
+  client
 };

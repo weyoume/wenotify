@@ -1,6 +1,6 @@
 const express = require('express');
 
-const authMiddleware = require('../middlewares/steemConnectAuth');
+const authMiddleware = require('../middlewares/weauthMiddle');
 const notifications = require('./notifications');
 
 const router = express.Router();

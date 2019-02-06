@@ -1,6 +1,6 @@
-# BUSY API
+# wenotify API
 
-The API server for [Busy](https://busy.org/) - Blockchain-based social network where anyone can earn rewards :rocket:.
+The API server for [wenotify](https://wenotify.org/) - Blockchain-based social network where anyone can earn rewards :rocket:.
 
 ## Development
 

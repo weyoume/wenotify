@@ -1,5 +1,5 @@
 const Bluebird = require('bluebird');
-const sc2 = require('sc2-sdk');
+const weauthjs = require('weauthjs');
 
 function createTimeout(timeout, promise) {
   return new Promise((resolve, reject) => {
@@ -17,8 +17,8 @@ async function authMiddleware(req, res, next) {
   }
 
   try {
-    const api = sc2.Initialize({
-      app: 'busy.app',
+    const api = weauthjs.Initialize({
+      app: 'weyoume.alpha',
     });
 
     api.setAccessToken(token);

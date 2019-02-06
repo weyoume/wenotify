@@ -1,8 +1,8 @@
 const _ = require('lodash');
 const express = require('express');
 const SocketServer = require('ws').Server;
-const { Client } = require('busyjs');
-const sdk = require('sc2-sdk');
+const { Client } = require('welitejs');
+const sdk = require('weauthjs');
 const bodyParser = require('body-parser');
 const redis = require('./helpers/redis');
 const utils = require('./helpers/utils');
@@ -12,19 +12,19 @@ const notificationUtils = require('./helpers/expoNotifications');
 const NOTIFICATION_EXPIRY = 5 * 24 * 3600;
 const LIMIT = 25;
 
-const sc2 = sdk.Initialize({ app: 'busy.app' });
+const weauthjs = sdk.Initialize({ app: 'weyoume.alpha' });
 
 const app = express();
 app.use(bodyParser.json());
 app.use('/', router);
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 8090;
 const server = app.listen(port, () => console.log(`Listening on ${port}`));
 
 const wss = new SocketServer({ server });
 
-const steemdWsUrl = process.env.STEEMD_WS_URL || 'wss://rpc.buildteam.io';
-const client = new Client(steemdWsUrl);
+const nodeWssUrl = process.env.WSS_API_URL || 'wss://node.weyoume.io';
+const client = new Client(nodeWssUrl);
 
 const cache = {};
 const useCache = false;
@@ -66,8 +66,8 @@ wss.on('connection', ws => {
       // } else if (useCache && cache[key]) {
       //  ws.send(JSON.stringify({ id: call.id, cache: true, result: cache[key] }));
     } else if (call.method === 'login' && call.params && call.params[0]) {
-      sc2.setAccessToken(call.params[0]);
-      sc2
+      weauthjs.setAccessToken(call.params[0]);
+      weauthjs
         .me()
         .then(result => {
           console.log('Login success', result.name);
