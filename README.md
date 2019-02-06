@@ -1,6 +1,6 @@
 # wenotify API
 
-The API server for [wenotify](https://wenotify.org/) - Blockchain-based social network where anyone can earn rewards :rocket:.
+The API server for [WeYouMe](https://weyoume.io/) - Blockchain-based social network where anyone can earn rewards :rocket:.
 
 ## Development
 

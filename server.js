@@ -18,7 +18,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use('/', router);
 
-const port = process.env.PORT || 6379;
+const port = process.env.PORT || 4000;
 const server = app.listen(port, () => console.log(`Listening on ${port}`));
 
 const wss = new SocketServer({ server });
