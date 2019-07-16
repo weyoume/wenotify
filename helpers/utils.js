@@ -1,18 +1,10 @@
+console.log('Connecting to weliterpcjs');
 const createClient = require('weliterpcjs').createClient;
 
-const client = createClient(process.env.API_URL || 'https://node1.weyoume.io', {timeout: 15000});
-client.sendAsync = (message, params) =>
-  new Promise((resolve, reject) => {
-    client.send(message, params, (err, result) => {
-      if (err !== null) return reject(err);
-      console.log('Connection weliterpcjs');
-      return resolve(result);
-    });
-  });
+const client = createClient(process.env.API_URL ||'https://node1.weyoume.io');
 
-// const Client = require('weliterpcjs');
 const bluebird = require('bluebird');
-// const client = new Client('https://node.weyoume.io');
+
 bluebird.promisifyAll(client);
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
