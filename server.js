@@ -18,12 +18,12 @@ const app = express();
 app.use(bodyParser.json());
 app.use('/', router);
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 4000 ;
 const server = app.listen(port, () => console.log(`Listening on ${port}`));
 
 const wss = new SocketServer({ server });
 
-const nodeWssUrl = process.env.WSS_API_URL || 'wss://node.weyoume.io';
+const nodeWssUrl = process.env.WSS_API_URL || 'wss://node1.weyoume.io';
 const client = new Client(nodeWssUrl);
 
 const cache = {};
@@ -88,7 +88,6 @@ wss.on('connection', ws => {
           );
         });
     } else if (call.method === 'subscribe' && call.params && call.params[0]) {
-      console.log('Subscribe success', call.params[0]);
       ws.name = call.params[0];
       ws.send(
         JSON.stringify({ id: call.id, result: { subscribe: true, username: call.params[0] } }),
@@ -169,7 +168,7 @@ const getNotifications = ops => {
         }
         break;
       }
-      case 'custom_json': {
+      case 'customJson': {
         let json = {};
         try {
           json = JSON.parse(params.json);
@@ -203,8 +202,27 @@ const getNotifications = ops => {
                 timestamp: Date.parse(op.timestamp) / 1000,
                 block: op.block,
               };
-              // console.log('Reblog', [json[1].author, JSON.stringify(notification)]);
               notifications.push([json[1].author, notification]);
+            }
+            break;
+          }
+          case 'message': {
+            /** Find message */
+            if (
+              json[0] === 'message' &&
+              json[1].sender &&
+              json[1].recipient &&
+              json[1].messageText &&
+              json[1].time &&
+              json[1].id
+            ) {
+              const notification = {
+                type: 'message',
+                sender: json[1].sender,
+                timestamp: Date.parse(op.timestamp) / 1000,
+                block: op.block,
+              };
+              notifications.push([json[1].recipient, notification]);
             }
             break;
           }
@@ -220,13 +238,12 @@ const getNotifications = ops => {
           timestamp: Date.parse(op.timestamp) / 1000,
           block: op.block,
         };
-        // console.log('Witness vote', [params.witness, notification]);
         notifications.push([params.witness, notification]);
         break;
       }
       case 'vote': {
-        /** Find downvote */
-        if (params.weight < 0) {
+        /** Find Vote */
+        if (params.author != params.voter) {
           const notification = {
             type: 'vote',
             voter: params.voter,
@@ -235,7 +252,6 @@ const getNotifications = ops => {
             timestamp: Date.parse(op.timestamp) / 1000,
             block: op.block,
           };
-          // console.log('Downvote', JSON.stringify([params.author, notification]));
           notifications.push([params.author, notification]);
         }
         break;
@@ -250,7 +266,6 @@ const getNotifications = ops => {
           timestamp: Date.parse(op.timestamp) / 1000,
           block: op.block,
         };
-        // console.log('Transfer', JSON.stringify([params.to, notification]));
         notifications.push([params.to, notification]);
         break;
       }
@@ -315,13 +330,12 @@ const loadBlock = blockNum => {
           .multi(redisOps)
           .execAsync()
           .then(() => {
-            console.log('Block loaded', blockNum, 'notification stored', notifications.length);
+            console.log('Block loaded: ', blockNum, 'Notifications stored: ', notifications.length, notifications);
 
             /** Send push notification for logged peers */
             notifications.forEach(notification => {
               wss.clients.forEach(client => {
                 if (client.name && client.name === notification[0]) {
-                  console.log('Send push notification', notification[0]);
                   client.send(
                     JSON.stringify({
                       type: 'notification',
@@ -352,7 +366,7 @@ const loadNextBlock = () => {
   redis
     .getAsync('last_block_num')
     .then(res => {
-      let nextBlockNum = res === null ? 20000000 : parseInt(res) + 1;
+      let nextBlockNum = res === null ? 0 : parseInt(res) + 1;
       utils
         .getGlobalProps()
         .then(globalProps => {

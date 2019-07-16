@@ -1,10 +1,11 @@
 const createClient = require('weliterpcjs').createClient;
 
-const client = createClient(process.env.API_URL || 'https://node.weyoume.io', {timeout: 15000});
-client.send = (message, params) =>
+const client = createClient(process.env.API_URL || 'https://node1.weyoume.io', {timeout: 15000});
+client.sendAsync = (message, params) =>
   new Promise((resolve, reject) => {
     client.send(message, params, (err, result) => {
       if (err !== null) return reject(err);
+      console.log('Connection weliterpcjs');
       return resolve(result);
     });
   });
@@ -16,15 +17,15 @@ bluebird.promisifyAll(client);
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-const getBlock = blockNum => client.sendAsync({ method: 'get_block', params: [blockNum] }, null);
+const getBlock = blockNum => client.sendAsync('get_block',[blockNum]).catch(err=>{console.error('err', err)});
 
 const getOpsInBlock = (blockNum, onlyVirtual = false) =>
-  client.sendAsync({ method: 'get_ops_in_block', params: [blockNum, onlyVirtual] }, null);
+  client.sendAsync('get_ops_in_block', [blockNum, onlyVirtual]).catch(err=>{console.error('err', err)});;
 
 const getGlobalProps = () =>
-  client.sendAsync({ method: 'get_dynamic_global_properties', params: [] }, null);
+  client.sendAsync('get_dynamic_global_properties', []).catch(err=>{console.error('err', err)});;
 
-const mutliOpsInBlock = (start, limit, onlyVirtual = false) => {
+const multiOpsInBlock = (start, limit, onlyVirtual = false) => {
   const request = [];
   for (let i = start; i < start + limit; i++) {
     request.push({ method: 'get_ops_in_block', params: [i, onlyVirtual] });
@@ -45,7 +46,7 @@ module.exports = {
   getBlock,
   getOpsInBlock,
   getGlobalProps,
-  mutliOpsInBlock,
+  multiOpsInBlock,
   getBlockOps,
   client
 };
